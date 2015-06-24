@@ -1,3 +1,5 @@
+* This script is for Python 3, run using 'python3 parse.py'
+
 * parse.py will load pruned_html as XML, and write relevant information into words.txt
 * pruned_html is original HTML download without any text, and without DTD information
 * test_html is same as pruned_html, just head -100

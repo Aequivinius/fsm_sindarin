@@ -18,6 +18,7 @@ import io
 word_type_regex = re.compile('[a-z]+.*\.')
 
 word_types = dict()
+nouns = list()
 unwanted_lookalikes = [ 'pl.' , 'm.' , 'f.' , 'hypo.' , 'coll.']
 
 tree = ET.parse('pruned_html.html')
@@ -70,8 +71,19 @@ for child in root:
 				
 end = time.time()
 print("Parsed HTML in ", end - start, " seconds")
+
+# Writing to files and looking for nouns done in the same loop
+# looping two times will give an AttributeError: 'list' object has no attribute 'items'
+# which I don't know why
 with io.open('word_types.txt','wt',encoding='utf-8') as f:
-    for word, word_types in word_types.iteritems():
+    for word, word_types in word_types.items():
 	    for word_type in word_types:
-		    f.write(unicode(word) + " : " + unicode(word_type) + "\n")
-print('Written dictionary to word_types.txt')
+		    if word_type is "n":
+		    		nouns.append(word)
+		    f.write(word + " : " + word_type + "\n")
+print('Written dictionary to word_types.txt\n')
+
+with io.open('nouns.txt','wt',encoding='utf-8') as n:
+	for noun in nouns:
+		n.write(noun + "\n")
+print('Written nouns to nouns.txt')

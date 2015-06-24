@@ -3,20 +3,89 @@
 # Sindarin
 # Nico Colic, 2015
 
-define I_verbs [ {ped-} ] ;
-define A_verbs [ { minna-} ] ;
+define NounStems @txt"words/nouns.txt" ;
 
-define A_stems [ {a-} -> 0 || _ .#. ] ;
-define I_stems [ - -> 0 || _ .#. ] ;
+define Consonants [ p | b | m | f | v | {th} | {dh} | t | d | n | s | {rh} | r | {lh} | l | j | c | k | g | {ng} | {ch} | {hw} | w | h ] ;
 
-define Stems [ ( I_verbs .o. I_stems ) | ( A_verbs .o. A_stems ) ] ;
+# â etc. if long vowel in last syllable, á in other syllables
+define SingleVowels [ a | â | á | e | ê | é | i | î | í | o | ô | ó | u | û | ú | y | ÿ | ý ] ;
+define Diphthongs [ {ae} | {au} | {ai} | {ei} | {oe} | {ui} | {aw} ] ;
+define Vowels [ SingleVowels | Diphthongs ] ;
+define Syllable [ Consonants* Vowels+ Consonants* ] ;
 
-define Imperative Stems "+Imperative":{-o} ; 
+define PluralAEnd	[ a -> AI || _ Consonants+ I .#. ] ;
+define PluralALong	[ â -> AI || _ Consonants+ I .#. ] ;
+define PluralANG		[ a -> E || _ [{ng}|{nc}] I .#. ] ;
 
-define Verbs
+# This rule is ambiguous, sometimes last syllable a will shift to ai or ei in this case, too
+define PluralARL		[ a -> E || Consonants+ _ [ r | l ] Consonants+ I .#. ] ;
 
-read regex Verbs ;
+define PluralA		[ a -> E || _ ?* I .#. ] ;
+
+# order matters here, it allows for easy formulation of PluralAEnd rule
+define PluralARules [ PluralANG .o. PluralARL .o. PluralAEnd .o. PluralALong .o. PluralA ] ;
+
+define PluralEEnd 	[ e -> I || _ Consonants+ I .#. ] ;
+define PluralELong	[ ê -> Î || _ Consonants+ I .#. ] ;
+
+# TODO: Wenn in der letzten oder einzigen Silbe die Kombination ie auftaucht, so wird aus diesem ie ein i, voranstehende Vokale scheinen kompensatorisch gelängt zu werden:
+# Strategie: Ersetze I durch Sonderzeichen, welches die Längung aller vorangegangenen Vokale bedingt, und endlich gelöscht wird
+
+define PluralERules [ PluralEEnd .o. PluralELong ] ;
+
+define PluralI		[ i -> I || _ ?* I .#. ] ;
+define PluralILong	[ î -> Î || _ ?* I .#. ] ;
+define PluralIRules	[ PluralI .o. PluralILong ] ;
+
+# TODO Folglich ist ein Wort, das nur die Vokale i besitzt, normalerweise nicht zwischen Singluar und Plural zu unterscheiden. Der Satzzusammenhang muss in diesen Fällen über den Numerus Auskunft geben. Möglicherweise aber kann hier die Endung -in genutzt werden:
+
+define PluralOEnd	[ o -> Y || _ Consonants+ I .#. ] ;
+define PluralOLong	[ ô -> Ÿ || _ Consonants+ I .#. ] ;
+define PluralO		[ o -> E || _ ?* I .#. ] ;
+define PluralORules 	[PluralOEnd .o. PluralOLong .o. PluralO ] ;
+
+# TODO Falls nach dem o nur einzelner Konsonant (also kein Konsonantencluster) folgt, kann o auch zu ui werden.
+
+# TODO Oft tritt es auch auf, dass o in der letzten Silbe zu œ oder œi und später dann zu e bzw. ei wird. Das scheint besonders bei der Vokalfolge o-o bevorzugt zu sein. Im Dialekt von Gondor ist diese Art von Pluralisierung ganz alltäglich, weil dort der Laut y fehlt.
+
+define PluralU		[ u -> Y ||_ ?* I .#. ] ;
+define PluralULongEnd	[ û -> UI || _ Consonants+ I .#. ] ;
+define PluralULong	[ û -> Ÿ || _ ?* I .#. ] ;
+define PluralURules	[ PluralULongEnd .o. PluralU .o. PluralULong ] ;
+
+define PluralY 		[ y -> Y || _ ?* I .#. ] ;
+define PluralYLong	[ ÿ -> Ÿ || _ ?* I .#. ] ;
+define PluralYRules	[ PluralY .o. PluralYLong ] ;
+
+define PluralRules [ PluralARules .o. PluralERules .o. PluralIRules .o. PluralORules.o. PluralURules .o. PluralYRules] ;
+
+# uses I as marker for Plural, because within Tolkien's fictional language history
+# the plural used to build by a final -i, which caused the vowel shifts
+define Plural [ NounStems "+Pl":I ] ;
+define Singular [ NounStems "+Sg":0 ] ;
+
+define PluralClean1 [ I -> 0 || _ .#. ] ;
+define PluralClean2 [ AI -> {ai} , E -> e , I -> i , Î -> î , O -> o , Ô -> ô , Y -> y , Ÿ -> ÿ , UI -> {ui} ] ;
+define PluralClean [ PluralClean1 .o. PluralClean2 ] ;
 
 
-read regex Verben ;
-apply up < words.txt ;
+
+### THIS PART IS EXPERIMENTAL TO SHOW HOW LENITIONS / MUTATIONS COULD BE SOLVED ###
+# 
+# define NoMutation	[ NounStems "+Mut:None":0 ] ;
+# define SoftMutation [ NounStems "+Mut:Soft":MS ] ;
+# define NasalMutation [ NounStems "+Mut:Nasal":NS ] ;
+
+# define SoftMutPTC	[ p -> b , t -> d , c -> g || .#. _ *? MS ] ;
+# define NasalMutPTC 	[ p -> ph , t -> th , c -> ch || .#. _ *? NS ] ;
+# define SibilantMutPTC [ p -> ph , t -> th , c -> ch || .#. _ *? SS ] ;
+
+define Mutations [ SoftMutation ] ;
+
+
+define Numeri [ Singular | Plural ] ;
+define Nouns [ Numeri .o. PluralRules .o. PluralClean] ;
+
+read regex Nouns ;
+
+apply up < "texts/test.txt" ;
