@@ -1,0 +1,17 @@
+* parse.py will load pruned_html as XML, and write relevant information into words.txt
+* pruned_html is original HTML download without any text, and without DTD information
+* test_html is same as pruned_html, just head -100
+
+* the Problem is that word type information is not marked, so we have to apply some guess work:
+	* it always sits in <small><i></i></small> (but other information can also sit in this format)
+	* it always starts with lowercase letter, ends in dot (but gender information and plurals are the same)
+	* it comes after the [IPA], which is not in its own tag; and sometimes there’s additional information between the [IPA] and the tag that has the word type information. also, before the [IPA] there’s no tag that could be mistaken for the one we’re looking for; so this is not really useful.
+
+* So the script will now look for all ./small/i, and then find the ones starting with lowercase and ending in dot, and then filter out gender information and plurals. This solution is not ideal, but on test_html worked fine
+
+TO DO
+* it would be cool though to extract irregular pl. forms
+* and to split ‘and’ cases
+* there’s heaps of words that can be added to the unwanted_lookalikes list, but for now let’s continue with the plural forms
+
+

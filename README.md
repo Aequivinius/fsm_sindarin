@@ -4,8 +4,10 @@
 * git lernen + einrichten: 1h
 	* [Git Hub Tutorial][git tutorial]
 	* [Markdown Tutorial][md tutorial]	
-* Readme-Ziel schreiben: 1h
+* Readme-Ziel schreiben: 0.5h
+* Sindarin
 	* Texte beschaffen + säubern ([Tolkien Gateway][tg])
+	* Wortliste von [Hisweloke][hisweloke]. Da die aktuelle Version des Lexikons nur als HTML verfügbar ist, musste diese geparst werden.
 * Wortliste parsen 1
 * Pt 1: Plural-Bildung 2
 * Nachlesen, wie mit Mutationen umgehen 1
@@ -32,3 +34,4 @@ The focus of this project lies in the modeling of these two features. The capabi
 [git tutorial]: https://try.github.io
 [md tutorial]: http://daringfireball.net/projects/markdown/basics
 [tg]: http://tolkiengateway.net/wiki/King's_Letter
+[hisweloke]: http://www.jrrvf.com/hisweloke/sindar/online/english.html
