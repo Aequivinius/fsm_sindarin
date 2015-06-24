@@ -1,0 +1,22 @@
+# -*- coding: utf-8 -*-
+
+# Sindarin
+# Nico Colic, 2015
+
+define I_verbs [ {ped-} ] ;
+define A_verbs [ { minna-} ] ;
+
+define A_stems [ {a-} -> 0 || _ .#. ] ;
+define I_stems [ - -> 0 || _ .#. ] ;
+
+define Stems [ ( I_verbs .o. I_stems ) | ( A_verbs .o. A_stems ) ] ;
+
+define Imperative Stems "+Imperative":{-o} ; 
+
+define Verbs
+
+read regex Verbs ;
+
+
+read regex Verben ;
+apply up < words.txt ;
